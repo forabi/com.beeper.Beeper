@@ -1,10 +1,10 @@
 app-id: com.beeper.Beeper
 base: org.electronjs.Electron2.BaseApp
-base-version: "23.08"
+base-version: "24.08"
 runtime: org.freedesktop.Platform
-runtime-version: "23.08"
+runtime-version: "24.08"
 sdk: org.freedesktop.Sdk
-command: beeper-run
+command: beeper.sh
 separate-locales: false
 finish-args:
   - --device=dri
@@ -13,6 +13,10 @@ finish-args:
   - --socket=pulseaudio
   - --socket=x11
   - --socket=system-bus
+
+  - --socket=wayland
+  - --talk-name=org.freedesktop.Notifications
+  - --env=BEEPER_USE_WAYLAND=0
 
   - --filesystem=xdg-download
 modules:
@@ -23,29 +27,32 @@ modules:
       - ./beeper.AppImage --appimage-extract
       - rm beeper.AppImage
 
-      - cp squashfs-root/beeper.desktop com.beeper.Beeper.desktop
-      - desktop-file-edit --set-icon com.beeper.Beeper --set-key Exec --set-value
-        'beeper-run %u' com.beeper.Beeper.desktop
+      - cp squashfs-root/beepertexts.desktop com.beeper.Beeper.desktop
 
-      - cp squashfs-root/beeper.png com.beeper.Beeper.png
+      - desktop-file-edit --set-icon ${FLATPAK_ID} --set-key Exec --set-value 'beeper.sh %u' com.beeper.Beeper.desktop
 
-      - install -D beeper-run -t ${FLATPAK_DEST}/bin
+      - cp squashfs-root/beepertexts.png com.beeper.Beeper.png
+
+      - install -Dm755 beeper.sh -t ${FLATPAK_DEST}/bin
       - install -Dm644 com.beeper.Beeper.metainfo.xml -t ${FLATPAK_DEST}/share/metainfo
       - install -Dm644 com.beeper.Beeper.desktop -t ${FLATPAK_DEST}/share/applications
-      - install -Dm644 squashfs-root/usr/share/icons/hicolor/512x512/apps/beeper.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/com.beeper.Beeper.png
+      - install -Dm644 squashfs-root/usr/share/icons/hicolor/0x0/apps/beepertexts.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/com.beeper.Beeper.png
 
       - mv squashfs-root ${FLATPAK_DEST}/bin/beeper
 
     sources:
-      - type: script
-        dest-filename: beeper-run
-        commands:
-          - zypak-wrapper /app/bin/beeper/beeper "$@"
+      #- type: script
+      #  dest-filename: beeper.sh
+      #  commands:
+      #    - zypak-wrapper /app/bin/beeper/beepertexts "$@"
       - type: file
         path: com.beeper.Beeper.metainfo.xml
       - type: file
-        url: https://download.beeper.com/linux/appImage/x64
-        sha256: ab1bbf6bc79e59e38a0ac9e8e752762075174d71fcd8a5c135a8dfa0492489df
+        url: https://beeper-desktop.download.beeper.com/builds/Beeper-4.0.445.AppImage
+        sha256: 820665f64408e2113abdb44cfc2befffe02793706c53e9a3d9f19d2725beeabe
         only-arches:
           - x86_64
         dest-filename: beeper.AppImage
+      - type: file
+        path: beeper.sh
+
