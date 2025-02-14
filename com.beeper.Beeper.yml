@@ -41,10 +41,6 @@ modules:
       - mv squashfs-root ${FLATPAK_DEST}/bin/beeper
 
     sources:
-      #- type: script
-      #  dest-filename: beeper.sh
-      #  commands:
-      #    - zypak-wrapper /app/bin/beeper/beepertexts "$@"
       - type: file
         path: com.beeper.Beeper.metainfo.xml
       - type: file
