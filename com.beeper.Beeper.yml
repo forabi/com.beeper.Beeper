@@ -7,17 +7,16 @@ sdk: org.freedesktop.Sdk
 command: beeper.sh
 separate-locales: false
 finish-args:
-  - --device=dri
+  - --device=all
   - --share=ipc
   - --share=network
   - --socket=pulseaudio
   - --socket=x11
   - --socket=system-bus
-
+  - --talk-name=org.freedesktop.portal.Fcitx
   - --socket=wayland
   - --talk-name=org.freedesktop.Notifications
-  - --env=BEEPER_USE_WAYLAND=0
-
+  - --env=BEEPER_USE_WAYLAND=1
   - --filesystem=xdg-download
 modules:
   - name: beeper
@@ -44,8 +43,8 @@ modules:
       - type: file
         path: com.beeper.Beeper.metainfo.xml
       - type: file
-        url: https://beeper-desktop.download.beeper.com/builds/Beeper-4.0.445.AppImage
-        sha256: 820665f64408e2113abdb44cfc2befffe02793706c53e9a3d9f19d2725beeabe
+        url: https://beeper-desktop.download.beeper.com/builds/Beeper-4.0.469.AppImage
+        sha256: bfb26e9d4be90ae64cf984b7afafb98fadd1c5c38ae41e9ff5500d19940e4890
         only-arches:
           - x86_64
         dest-filename: beeper.AppImage

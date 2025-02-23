@@ -1,0 +1,71 @@
+name: Check for Beeper Updates
+
+on:
+  schedule:
+    - cron: "0 */12 * * *" # Run every 12 hours
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+
+      - name: Check for new Beeper version
+        id: check-version
+        run: |
+          # Get the redirect URL
+          NEW_URL=$(curl -sI "https://api.beeper.com/desktop/download/linux/x64/stable/com.automattic.beeper.desktop" | grep -i "location:" | awk '{print $2}' | tr -d '\r')
+          echo "new_url=${NEW_URL}" >> $GITHUB_OUTPUT
+
+          # Get current URL from yml
+          CURRENT_URL=$(yq '.modules[0].sources[] | select(.dest-filename == "beeper.AppImage") | .url' com.beeper.Beeper.yml)
+          echo "current_url=${CURRENT_URL}" >> $GITHUB_OUTPUT
+
+          if [ "${NEW_URL}" != "${CURRENT_URL}" ]; then
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update version if needed
+        if: steps.check-version.outputs.update_needed == 'true'
+        id: update-version
+        run: |
+          # Download new version
+          curl -L "${{ steps.check-version.outputs.new_url }}" -o beeper.AppImage
+
+          # Calculate new SHA256
+          NEW_SHA256=$(sha256sum beeper.AppImage | awk '{print $1}')
+
+          # Update the YAML file using yq
+          yq -i '.modules[0].sources[] |= 
+            select(.dest-filename == "beeper.AppImage").url = "${{ steps.check-version.outputs.new_url }}" |
+            select(.dest-filename == "beeper.AppImage").sha256 = env(NEW_SHA256)' com.beeper.Beeper.yml
+
+          # Extract version number from URL for PR
+          VERSION=$(echo "${{ steps.check-version.outputs.new_url }}" | grep -o 'Beeper-[0-9.]*' | cut -d'-' -f2)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.check-version.outputs.update_needed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Update Beeper to version ${{ steps.update-version.outputs.version }}"
+          title: "Update Beeper to version ${{ steps.update-version.outputs.version }}"
+          body: |
+            Automated update of Beeper to version ${{ steps.update-version.outputs.version }}
+
+            - New URL: ${{ steps.check-version.outputs.new_url }}
+            - Old URL: ${{ steps.check-version.outputs.current_url }}
+          branch: update-beeper
+          delete-branch: true
