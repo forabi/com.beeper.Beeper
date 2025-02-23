@@ -56,9 +56,8 @@ jobs:
           CURRENT_DATE=$(date +%Y-%m-%d)
 
           # Update the YAML file using yq
-          NEW_SHA256="${NEW_SHA256}" yq -i '.modules[0].sources[] |= 
-            select(.dest-filename == "beeper.AppImage").url = "${{ steps.check-version.outputs.new_url }}" |
-            select(.dest-filename == "beeper.AppImage").sha256 = strenv(NEW_SHA256)' com.beeper.Beeper.yml
+          yq -i "(.modules[0].sources[] | select(.dest-filename == \"beeper.AppImage\").url) = \"${{ steps.check-version.outputs.new_url }}\"" com.beeper.Beeper.yml
+          yq -i "(.modules[0].sources[] | select(.dest-filename == \"beeper.AppImage\").sha256) = \"${NEW_SHA256}\"" com.beeper.Beeper.yml
 
           # Update the metainfo.xml file
           xmlstarlet ed --inplace \
