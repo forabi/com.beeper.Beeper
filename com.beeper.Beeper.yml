@@ -25,29 +25,22 @@ modules:
       - chmod +x beeper.AppImage
       - ./beeper.AppImage --appimage-extract
       - rm beeper.AppImage
-
       - cp squashfs-root/beepertexts.desktop com.beeper.Beeper.desktop
-
       - desktop-file-edit --set-icon ${FLATPAK_ID} --set-key Exec --set-value 'beeper.sh %u' com.beeper.Beeper.desktop
-
       - cp squashfs-root/beepertexts.png com.beeper.Beeper.png
-
       - install -Dm755 beeper.sh -t ${FLATPAK_DEST}/bin
       - install -Dm644 com.beeper.Beeper.metainfo.xml -t ${FLATPAK_DEST}/share/metainfo
       - install -Dm644 com.beeper.Beeper.desktop -t ${FLATPAK_DEST}/share/applications
       - install -Dm644 squashfs-root/usr/share/icons/hicolor/0x0/apps/beepertexts.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/com.beeper.Beeper.png
-
       - mv squashfs-root ${FLATPAK_DEST}/bin/beeper
-
     sources:
       - type: file
         path: com.beeper.Beeper.metainfo.xml
       - type: file
-        url: https://beeper-desktop.download.beeper.com/builds/Beeper-4.0.469.AppImage
+        url: https://beeper-desktop.download.beeper.com/builds/Beeper-4.0.470.AppImage
         sha256: bfb26e9d4be90ae64cf984b7afafb98fadd1c5c38ae41e9ff5500d19940e4890
         only-arches:
           - x86_64
         dest-filename: beeper.AppImage
       - type: file
         path: beeper.sh
-
