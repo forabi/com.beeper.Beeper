@@ -15,10 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install yq
+      - name: Install dependencies
         run: |
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
           chmod +x /usr/local/bin/yq
+          sudo apt-get update && sudo apt-get install -y xmlstarlet
 
       - name: Check for new Beeper version
         id: check-version
@@ -47,14 +48,23 @@ jobs:
           # Calculate new SHA256
           NEW_SHA256=$(sha256sum beeper.AppImage | awk '{print $1}')
 
+          # Extract version number from URL for PR
+          VERSION=$(echo "${{ steps.check-version.outputs.new_url }}" | grep -o 'Beeper-[0-9.]*' | cut -d'-' -f2)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+          # Get current date in YYYY-MM-DD format
+          CURRENT_DATE=$(date +%Y-%m-%d)
+
           # Update the YAML file using yq
           NEW_SHA256="${NEW_SHA256}" yq -i '.modules[0].sources[] |= 
             select(.dest-filename == "beeper.AppImage").url = "${{ steps.check-version.outputs.new_url }}" |
             select(.dest-filename == "beeper.AppImage").sha256 = strenv(NEW_SHA256)' com.beeper.Beeper.yml
 
-          # Extract version number from URL for PR
-          VERSION=$(echo "${{ steps.check-version.outputs.new_url }}" | grep -o 'Beeper-[0-9.]*' | cut -d'-' -f2)
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          # Update the metainfo.xml file
+          xmlstarlet ed --inplace \
+            -u "/component/releases/release/@version" -v "${VERSION}" \
+            -u "/component/releases/release/@date" -v "${CURRENT_DATE}" \
+            com.beeper.Beeper.metainfo.xml
 
       - name: Create Pull Request
         if: steps.check-version.outputs.update_needed == 'true'
