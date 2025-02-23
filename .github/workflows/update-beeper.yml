@@ -46,6 +46,7 @@ jobs:
 
           # Calculate new SHA256
           NEW_SHA256=$(sha256sum beeper.AppImage | awk '{print $1}')
+          export NEW_SHA256  # Export for yq to use
 
           # Update the YAML file using yq
           yq -i '.modules[0].sources[] |= 
