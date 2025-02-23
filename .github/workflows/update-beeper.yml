@@ -46,12 +46,11 @@ jobs:
 
           # Calculate new SHA256
           NEW_SHA256=$(sha256sum beeper.AppImage | awk '{print $1}')
-          export NEW_SHA256  # Export for yq to use
 
           # Update the YAML file using yq
-          yq -i '.modules[0].sources[] |= 
+          NEW_SHA256="${NEW_SHA256}" yq -i '.modules[0].sources[] |= 
             select(.dest-filename == "beeper.AppImage").url = "${{ steps.check-version.outputs.new_url }}" |
-            select(.dest-filename == "beeper.AppImage").sha256 = env(NEW_SHA256)' com.beeper.Beeper.yml
+            select(.dest-filename == "beeper.AppImage").sha256 = strenv(NEW_SHA256)' com.beeper.Beeper.yml
 
           # Extract version number from URL for PR
           VERSION=$(echo "${{ steps.check-version.outputs.new_url }}" | grep -o 'Beeper-[0-9.]*' | cut -d'-' -f2)
