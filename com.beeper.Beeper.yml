@@ -14,6 +14,7 @@ finish-args:
   - --socket=x11
   - --socket=system-bus
   - --talk-name=org.freedesktop.portal.Fcitx
+  - --talk-name=org.kde.StatusNotifierWatcher
   - --socket=wayland
   - --talk-name=org.freedesktop.Notifications
   - --env=BEEPER_USE_WAYLAND=1
