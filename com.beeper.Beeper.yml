@@ -32,7 +32,7 @@ modules:
       - install -Dm755 beeper.sh -t ${FLATPAK_DEST}/bin
       - install -Dm644 com.beeper.Beeper.metainfo.xml -t ${FLATPAK_DEST}/share/metainfo
       - install -Dm644 com.beeper.Beeper.desktop -t ${FLATPAK_DEST}/share/applications
-      - install -Dm644 squashfs-root/usr/share/icons/hicolor/0x0/apps/beepertexts.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/com.beeper.Beeper.png
+      - install -Dm644 squashfs-root/beepertexts.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/com.beeper.Beeper.png
       - mv squashfs-root ${FLATPAK_DEST}/bin/beeper
     sources:
       - type: file
