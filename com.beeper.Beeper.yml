@@ -38,8 +38,8 @@ modules:
       - type: file
         path: com.beeper.Beeper.metainfo.xml
       - type: file
-        url: https://beeper-desktop.download.beeper.com/builds/Beeper-4.2.808-x86_64.AppImage
-        sha256: aa5e5690a5604222881e434a77cd39c457b3b2fa16fbc76a5f1e8ccdfb3171e3
+        url: https://beeper-desktop.download.beeper.com/builds/Beeper-4.2.876-x86_64.AppImage
+        sha256: f030fe384faa6d2161b94c8fc276a343942a0c423e379ad6689dc6156453ef0c
         only-arches:
           - x86_64
         dest-filename: beeper.AppImage
